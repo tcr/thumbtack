@@ -103,6 +103,11 @@ else if (opts._[0] == 'list') {
   proc.stdout.pipe(process.stdout);
 }
 
+else if (opts._[0] == 'run') {
+  var file = opts._[1];
+  require('./run.js').run(file);
+}
+
 else if (opts._[0] == 'addr') {
   var file = opts._[1];
   var hex = parseInt(opts._[2], 16);
