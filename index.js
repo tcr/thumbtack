@@ -7,7 +7,9 @@ var split = require('split');
 var minimist = require('minimist');
 var fs = require('fs');
 
-var opts = minimist(process.argv.slice(2));
+var opts = minimist(process.argv.slice(2), {
+  string: ['_']
+});
 
 if (opts._[0].match(/^disas(semble)?$/)) {
   var bufs = [];
@@ -72,6 +74,35 @@ else if (opts._[0].match(/^comp(ile)?$/)) {
   })
 }
 
+else if (opts._[0] == 'label') {
+  var file = opts._[1];
+  var label = opts._[2];
+
+  var proc = spawn('arm-none-eabi-objdump', ['--disassembler-options=force-thumb', '-M', 'reg-names-std', '-D', file]);
+  var ready = false;
+  proc.stdout
+    .pipe(split())
+    .on('data', function (line) {
+      if (ready && !line.match(/^\s*$/)) {
+        console.log(line.replace(/[\s\n]+$/, ''));
+      }
+      if (ready && line.match(/^\s*$/)) {
+        process.exit(1);
+      }
+      if (line.match(new RegExp("^[0-9a-z]+ <" + label + ">:", "i"))) {
+        console.log(line.green);
+        ready = true;
+      }
+    })
+}
+
+else if (opts._[0] == 'list') {
+  var file = opts._[1];
+
+  var proc = spawn('arm-none-eabi-objdump', ['-S', '--disassembler-options=force-thumb', '-D', file]);
+  proc.stdout.pipe(process.stdout);
+}
+
 else if (opts._[0] == 'addr') {
   var file = opts._[1];
   var hex = parseInt(opts._[2], 16);
@@ -108,6 +139,14 @@ else if (opts._[0] == 'addr') {
 
       trail.push(line);
     })
+}
+
+else if (opts._[0] == 'hex') {
+  console.log(parseInt(opts._[1], 2).toString(16))
+}
+
+else if (opts._[0] == 'bin') {
+  console.log(parseInt(opts._[1], 16).toString(2))
 }
 
 else {

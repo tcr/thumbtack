@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "description": "",
   "bin": {
-    "thumbtack": "index.js"
+    "thumbtack": "index.js",
+    "thumb": "index.js"
   },
   "main": "index.js",
   "dependencies": {
